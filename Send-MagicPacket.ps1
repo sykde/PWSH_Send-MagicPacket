@@ -2,7 +2,7 @@
     This script displays a list of MAC addresses from a json file,
     prompts the user to decide whether to pick one of the
     existing addresses or provide their own input and then
-    broadcasts a WOL package for the chosen computer in port 0.
+    broadcasts a WOL packet for the chosen computer in port 0.
 #>
 
 $knownAdaptors = Get-Content -Path $env:HOMEPATH\.config\WakeOnLAN\targetsList.json -ErrorAction SilentlyContinue | ConvertFrom-Json
@@ -26,7 +26,7 @@ Write-Host @"
 
 "@
 
-Write-Host -NoNewline "Choose target of Magic Package: "
+Write-Host -NoNewline "Choose target of Magic Packet: "
 [Int16] $target = Read-Host
 
 if ($targetMac -eq $count)
@@ -43,7 +43,7 @@ else
     [PSCustomObject] $targetAdaptor = $knownAdaptors[$target]
 }
 
-# Create WOL package contents:
+# Create WOL packet contents:
 
 [Byte[]] $startBytes = ,0xFF * 6
 
@@ -52,7 +52,7 @@ $targetAdaptor.MAC = $targetAdaptor.MAC.Replace(':','-')
 
 [Byte[]] $magicPacketContents = $startBytes + $macBytes
 
-# Send WOL package:
+# Send WOL packet:
 
 $UdpClient = New-Object System.Net.Sockets.UdpClient
 $UdpClient.Connect([System.Net.IPAddress]::Broadcast,0)
